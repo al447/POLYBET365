@@ -3,8 +3,8 @@
 A Polymarket-style prediction market platform.
 
 ## Stack
-- **Frontend:** React + Vite → Vercel
-- **Backend:** Node.js + Express → Render
+- **Frontend:** React + Vite
+- **Backend:** Node.js + Express
 - **Database:** MongoDB Atlas
 
 ## Development
@@ -21,12 +21,6 @@ npm run dev
 cd frontend
 npm install
 npm run dev
-```
-
-### Seed Database
-```bash
-cd backend
-npm run seed
 ```
 
 ## Environment Variables
