@@ -171,13 +171,29 @@ const fetchCryptoHistory = async (symbol, days) => {
   const cached = _cryptoCache[cacheKey];
   if (cached && Date.now() - cached.ts < CRYPTO_CACHE_TTL) return cached.data;
 
-  const base = process.env.COINGECKO_BASE || 'https://api.coingecko.com/api/v3';
+  const apiKey = process.env.COINGECKO_API_KEY || '';
+  // Use the Pro base if an API key is configured, otherwise the public base
+  const base = process.env.COINGECKO_BASE
+    || (apiKey ? 'https://pro-api.coingecko.com/api/v3' : 'https://api.coingecko.com/api/v3');
   const url = `${base}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`;
+
+  const headers = {
+    Accept: 'application/json',
+    'User-Agent': 'PolyBet365/1.0 (+https://polybet365.com)',
+  };
+  // CoinGecko: demo keys use x-cg-demo-api-key, pro keys use x-cg-pro-api-key
+  if (apiKey) {
+    headers[base.includes('pro-api') ? 'x-cg-pro-api-key' : 'x-cg-demo-api-key'] = apiKey;
+  }
 
   try {
     const fetchFn = global.fetch || require('node-fetch');
-    const res = await fetchFn(url);
-    if (!res.ok) return null;
+    const res = await fetchFn(url, { headers });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      console.warn(`[Crypto Price History] CoinGecko HTTP ${res.status} for ${coinId}: ${body.slice(0, 200)}`);
+      return null;
+    }
     const json = await res.json();
     if (!Array.isArray(json.prices)) return null;
     _cryptoCache[cacheKey] = { data: json.prices, ts: Date.now() };

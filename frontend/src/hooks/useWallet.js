@@ -112,15 +112,15 @@ const useWallet = () => {
     setIsConnecting(true);
     try {
       const { initWeb3Modal, getWeb3ModalInstance } = await import('../lib/web3modal');
-      const modal = initWeb3Modal() || getWeb3ModalInstance();
+      const modal = (await initWeb3Modal()) || getWeb3ModalInstance();
       if (!modal) {
         toast.error('WalletConnect not configured. Set VITE_WALLETCONNECT_PROJECT_ID in .env');
         setIsConnecting(false);
         return false;
       }
 
-      // Open Web3Modal directly to the WalletConnect QR view (skip wallet list)
-      await modal.open({ view: 'ConnectingWalletConnect' });
+      // Open Web3Modal — opens directly to WalletConnect QR since all other wallet types are disabled
+      await modal.open();
 
       // Wait for provider via subscribeProvider (event-driven)
       const walletProvider = await new Promise((resolve, reject) => {

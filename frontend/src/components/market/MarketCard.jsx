@@ -17,19 +17,30 @@ const CATEGORY_COLORS = {
 };
 
 const MarketIcon = ({ market }) => {
+  const { bg, text } = CATEGORY_COLORS[market.categorySlug] || { bg: '#6b7280', text: '#fff' };
+  const initial = market.title?.charAt(0)?.toUpperCase() || '?';
   const isUrl = market.image && (market.image.startsWith('http') || market.image.startsWith('/'));
   if (isUrl) {
     return (
-      <img
-        src={market.image}
-        alt={market.title}
-        className="w-10 h-10 rounded-xl object-cover"
-        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
-      />
+      <div className="relative w-10 h-10 flex-shrink-0">
+        <img
+          src={market.image}
+          alt={market.title}
+          className="w-10 h-10 rounded-xl object-cover"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            if (e.target.parentNode) e.target.parentNode.querySelector('.market-icon-fallback').style.display = 'flex';
+          }}
+        />
+        <div
+          className="market-icon-fallback w-10 h-10 rounded-xl items-center justify-center text-sm font-bold absolute inset-0"
+          style={{ backgroundColor: bg, color: text, display: 'none' }}
+        >
+          {initial}
+        </div>
+      </div>
     );
   }
-  const { bg, text } = CATEGORY_COLORS[market.categorySlug] || { bg: '#6b7280', text: '#fff' };
-  const initial = market.title?.charAt(0)?.toUpperCase() || '?';
   return (
     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ backgroundColor: bg, color: text }}>
       {initial}
